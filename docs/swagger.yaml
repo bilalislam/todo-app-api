@@ -1,0 +1,67 @@
+definitions:
+  store.Response:
+    properties:
+      message:
+        type: string
+      result:
+        type: object
+      success:
+        type: boolean
+    type: object
+  store.Task:
+    properties:
+      id:
+        type: integer
+      isComplete:
+        type: boolean
+      name:
+        type: string
+    type: object
+info:
+  contact:
+    email: bilal.islam815@gmail.com
+    name: API Support
+  description: This is a simple todo server
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Todo Api
+  version: "1.0"
+paths:
+  /tasks:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/store.Response'
+      summary: Get All Tasks
+      tags:
+      - tasks
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: task info
+        in: body
+        name: tasks
+        required: true
+        schema:
+          $ref: '#/definitions/store.Task'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/store.Response'
+      summary: Add a Task
+      tags:
+      - tasks
+swagger: "2.0"
