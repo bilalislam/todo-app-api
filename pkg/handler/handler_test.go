@@ -21,14 +21,14 @@ func getMockContext(mockRequest *MockRequest) (echo.Context, *httptest.ResponseR
 	e := echo.New()
 	req := httptest.NewRequest(mockRequest.method, "/", strings.NewReader(mockRequest.body))
 	if mockRequest.header != "" {
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		req.Header.Set(echo.HeaderContentType, mockRequest.header)
 	}
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	return c, rec
 }
 
-func TestGetTasks_ShouldSuccess_WhenTasksAreNotEmpty(t *testing.T) {
+func TestHandler_GetTasks_ShouldSuccess_WhenTasksAreNotEmpty(t *testing.T) {
 	c, rec := getMockContext(&MockRequest{
 		method: http.MethodGet,
 	})
@@ -54,7 +54,7 @@ func TestGetTasks_ShouldSuccess_WhenTasksAreNotEmpty(t *testing.T) {
 	}
 }
 
-func TestGetTasks_ShouldFail_WhenTasksAreEmpty(t *testing.T) {
+func TestHandler_GetTasks_ShouldFail_WhenTasksAreEmpty(t *testing.T) {
 	c, rec := getMockContext(&MockRequest{
 		method: http.MethodGet,
 	})
@@ -73,3 +73,111 @@ func TestGetTasks_ShouldFail_WhenTasksAreEmpty(t *testing.T) {
 	}
 }
 
+func TestHandler_AddTask_ShouldFail_WhenNotBind(t *testing.T) {
+	c, rec := getMockContext(&MockRequest{
+		method: http.MethodPost,
+		body: `{
+			"id": 1
+			"name": "buy some milk",
+			"isComplete": false
+		}`,
+		header: echo.MIMEApplicationJSON,
+	})
+
+	c.SetPath("/tasks")
+
+	mockStore := &mocks.DataStore{}
+	mockStore.On("AddTask")
+
+	h := Handler{
+		store: mockStore,
+	}
+
+	if assert.NoError(t, h.AddTask(c)) {
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
+	}
+}
+
+func TestHandler_AddTask_ShouldFail_WhenNotValidateToRequest(t *testing.T) {
+	c, rec := getMockContext(&MockRequest{
+		method: http.MethodPost,
+		body: `{
+			"id": 1,
+			"name": "",
+			"isComplete": false
+		}`,
+		header: echo.MIMEApplicationJSON,
+	})
+	c.SetPath("/tasks")
+
+	mockStore := &mocks.DataStore{}
+	mockStore.On("AddTask")
+
+	h := Handler{
+		store: mockStore,
+	}
+
+	if assert.NoError(t, h.AddTask(c)) {
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
+	}
+}
+
+func TestHandler_AddTask_ShouldSuccess_WhenValidateToRequest(t *testing.T) {
+	var req = `{
+			"id": 1,
+			"name": "buy some milk",
+			"isComplete": false
+		}`
+
+	c, rec := getMockContext(&MockRequest{
+		method: http.MethodPost,
+		body:   req,
+		header: echo.MIMEApplicationJSON,
+	})
+	c.SetPath("/tasks")
+
+	mockStore := &mocks.DataStore{}
+	mockStore.On("AddTask", requests.Task{
+		ID:         1,
+		Name:       "buy some milk",
+		IsComplete: false,
+	})
+
+	h := Handler{
+		store: mockStore,
+	}
+
+	if assert.NoError(t, h.AddTask(c)) {
+		assert.Equal(t, http.StatusCreated, rec.Code)
+	}
+}
+
+func TestHandler_UpdateTask_ShouldFail_WhenNotBind(t *testing.T) {
+	var req = `{
+			"id": 1,
+			"name": "buy some milk"
+			"isComplete": false
+		}`
+
+	c, rec := getMockContext(&MockRequest{
+		method: http.MethodPost,
+		body:   req,
+		header: echo.MIMEApplicationJSON,
+	})
+	c.SetPath("/tasks")
+
+	mockStore := &mocks.DataStore{}
+	mockStore.On("UpdateTask", requests.Task{
+		ID:         1,
+		Name:       "buy some milk",
+		IsComplete: false,
+	})
+
+	h := Handler{
+		store: mockStore,
+	}
+
+	if assert.NoError(t, h.UpdateTask(c)) {
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
+	}
+}
