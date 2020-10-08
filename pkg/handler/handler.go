@@ -10,13 +10,21 @@ import (
 	"strconv"
 )
 
-var ds = &store.DataStore{}
-
-type Store interface {
+type DataStore interface {
 	GetTasks() []requests.Task
-	AddTask(task requests.Task) error
-	UpdateTask(task requests.Task) error
+	AddTask(task requests.Task)
+	UpdateTask(id int, task requests.Task) error
 	DeleteTask(id int) error
+}
+
+type Handler struct {
+	store DataStore
+}
+
+func NewHandler(store *store.DataStore) Handler {
+	return Handler{
+		store: store,
+	}
 }
 
 // GetTasks godoc
@@ -26,17 +34,13 @@ type Store interface {
 // @Produce  json
 // @Success 200 {object} store.Response
 // @Router /tasks [get]
-func GetTasks(c echo.Context) error {
-	tasks, err := ds.GetTasks()
-
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, responses.Response{
-			Messages: err.Error(),
-		})
-	}
+func (h Handler) GetTasks(c echo.Context) error {
+	tasks := h.store.GetTasks()
 
 	if len(tasks) == 0 {
-		return c.JSON(http.StatusOK, new([]requests.Task))
+		return c.JSON(http.StatusNoContent, responses.Response{
+			Success: false,
+		})
 	}
 
 	return c.JSON(http.StatusOK, tasks)
@@ -50,7 +54,7 @@ func GetTasks(c echo.Context) error {
 // @Success 200 {object} store.Response
 // @Param tasks body store.Task true "task info"
 // @Router /tasks [post]
-func AddTask(c echo.Context) error {
+func (h Handler) AddTask(c echo.Context) error {
 
 	task := new(requests.Task)
 	err := c.Bind(task)
@@ -70,7 +74,7 @@ func AddTask(c echo.Context) error {
 		})
 	}
 
-	ds.AddTask(*task)
+	h.store.AddTask(*task)
 
 	return c.JSON(http.StatusCreated, responses.Response{
 		Result:  task,
@@ -78,7 +82,7 @@ func AddTask(c echo.Context) error {
 	})
 }
 
-func UpdateTask(c echo.Context) error {
+func (h Handler) UpdateTask(c echo.Context) error {
 
 	task := new(requests.Task)
 	err := c.Bind(task)
@@ -99,7 +103,7 @@ func UpdateTask(c echo.Context) error {
 	}
 
 	id, _ := strconv.Atoi(c.Param("id"))
-	err = ds.UpdateTask(id, *task)
+	err = h.store.UpdateTask(id, *task)
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, responses.Response{
@@ -113,9 +117,9 @@ func UpdateTask(c echo.Context) error {
 	})
 }
 
-func DeleteTask(c echo.Context) error {
+func (h Handler) DeleteTask(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
-	err := ds.DeleteTask(id)
+	err := h.store.DeleteTask(id)
 
 	if err != nil {
 		c.Logger().Error(err)

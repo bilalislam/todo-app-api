@@ -3,6 +3,7 @@ package main
 import (
 	_ "github.com/bilalislam/todo-app-api/docs"
 	"github.com/bilalislam/todo-app-api/pkg/handler"
+	"github.com/bilalislam/todo-app-api/pkg/store"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/swaggo/echo-swagger"
@@ -20,7 +21,6 @@ import (
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
-
 func main() {
 	e := echo.New()
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
@@ -33,12 +33,15 @@ func main() {
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 
+	ds := store.NewDataStore()
+	h := handler.NewHandler(&ds)
+
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	e.GET("/", Index)
-	e.GET("/tasks", handler.GetTasks)
-	e.POST("/tasks", handler.AddTask)
-	e.PUT("/tasks/:id", handler.UpdateTask)
-	e.DELETE("/tasks/:id", handler.DeleteTask)
+	e.GET("/tasks", h.GetTasks)
+	e.POST("/tasks", h.AddTask)
+	e.PUT("/tasks/:id", h.UpdateTask)
+	e.DELETE("/tasks/:id", h.DeleteTask)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

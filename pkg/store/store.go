@@ -9,16 +9,19 @@ type DataStore struct {
 	tasks []requests.Task
 }
 
-func (ds *DataStore) GetTasks() ([]requests.Task, error) {
-
-	return ds.tasks, nil
-}
-
 var NotFound = errors.New("Task was not found")
 
-func (ds *DataStore) AddTask(task requests.Task) requests.Task {
+func NewDataStore() DataStore {
+	return DataStore{}
+}
+
+func (ds *DataStore) GetTasks() []requests.Task {
+
+	return ds.tasks
+}
+
+func (ds *DataStore) AddTask(task requests.Task) {
 	ds.tasks = append(ds.tasks, task)
-	return task
 }
 
 func (ds *DataStore) UpdateTask(id int, task requests.Task) error {
