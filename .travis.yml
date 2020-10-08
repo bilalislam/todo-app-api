@@ -1,13 +1,18 @@
 language: go
 
 go:
+  - 1.x
+  - "1.10"
+  - 1.11.x
   - 1.12.x
+  - master
 
 services:
   - docker
 
 before_deploy:
-  - go test
+  - go test -v ./pkg/store
+  - go test -v ./pkg/handler
 
 after_success:
   - docker --version
