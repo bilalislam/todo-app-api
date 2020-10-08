@@ -2,6 +2,8 @@ package handler
 
 import (
 	"errors"
+	"github.com/bilalislam/todo-app-api/pkg/handler/requests"
+	"github.com/bilalislam/todo-app-api/pkg/handler/responses"
 	"github.com/bilalislam/todo-app-api/pkg/store"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -11,9 +13,9 @@ import (
 var ds = &store.DataStore{}
 
 type Store interface {
-	GetTasks() []store.Task
-	AddTask(task store.Task) error
-	UpdateTask(task store.Task) error
+	GetTasks() []requests.Task
+	AddTask(task requests.Task) error
+	UpdateTask(task requests.Task) error
 	DeleteTask(id int) error
 }
 
@@ -28,16 +30,16 @@ func GetTasks(c echo.Context) error {
 	tasks, err := ds.GetTasks()
 
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, store.Response{
+		return c.JSON(http.StatusBadRequest, responses.Response{
 			Messages: err.Error(),
 		})
 	}
 
-	if len(tasks) > 0 {
-		return c.JSON(http.StatusOK, tasks)
+	if len(tasks) == 0 {
+		return c.JSON(http.StatusOK, new([]requests.Task))
 	}
 
-	return c.JSON(http.StatusNotFound, tasks)
+	return c.JSON(http.StatusOK, tasks)
 }
 
 // AddTask godoc
@@ -50,40 +52,40 @@ func GetTasks(c echo.Context) error {
 // @Router /tasks [post]
 func AddTask(c echo.Context) error {
 
-	task := new(store.Task)
+	task := new(requests.Task)
 	err := c.Bind(task)
 
 	if err != nil {
 		c.Logger().Error(err)
-		return c.JSON(http.StatusBadRequest, store.Response{
-			Messages: err.Error(),
+		return c.JSON(http.StatusBadRequest, responses.Response{
+			Messages: "An error occurred",
 		})
 	}
 
 	err = validateTask(*task)
 	if err != nil {
 		c.Logger().Error(err)
-		return c.JSON(http.StatusBadRequest, store.Response{
+		return c.JSON(http.StatusBadRequest, responses.Response{
 			Messages: err.Error(),
 		})
 	}
 
-	t := ds.AddTask(*task)
+	ds.AddTask(*task)
 
-	return c.JSON(http.StatusOK, store.Response{
-		Result:  t,
+	return c.JSON(http.StatusCreated, responses.Response{
+		Result:  task,
 		Success: true,
 	})
 }
 
 func UpdateTask(c echo.Context) error {
 
-	task := new(store.Task)
+	task := new(requests.Task)
 	err := c.Bind(task)
 
 	if err != nil {
 		c.Logger().Error(err)
-		return c.JSON(http.StatusBadRequest, store.Response{
+		return c.JSON(http.StatusBadRequest, responses.Response{
 			Messages: err.Error(),
 		})
 	}
@@ -91,7 +93,7 @@ func UpdateTask(c echo.Context) error {
 	err = validateTask(*task)
 	if err != nil {
 		c.Logger().Error(err)
-		return c.JSON(http.StatusBadRequest, store.Response{
+		return c.JSON(http.StatusBadRequest, responses.Response{
 			Messages: err.Error(),
 		})
 	}
@@ -100,12 +102,12 @@ func UpdateTask(c echo.Context) error {
 	err = ds.UpdateTask(id, *task)
 
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, store.Response{
+		return c.JSON(http.StatusBadRequest, responses.Response{
 			Messages: err.Error(),
 		})
 	}
 
-	return c.JSON(http.StatusOK, store.Response{
+	return c.JSON(http.StatusOK, responses.Response{
 		Result:  task,
 		Success: true,
 	})
@@ -117,17 +119,17 @@ func DeleteTask(c echo.Context) error {
 
 	if err != nil {
 		c.Logger().Error(err)
-		return c.JSON(http.StatusBadRequest, store.Response{
+		return c.JSON(http.StatusBadRequest, responses.Response{
 			Messages: err.Error(),
 		})
 	}
 
-	return c.JSON(http.StatusOK, store.Response{
+	return c.JSON(http.StatusOK, responses.Response{
 		Success: true,
 	})
 }
 
-func validateTask(t store.Task) error {
+func validateTask(t requests.Task) error {
 	if t.Name == "" {
 		return errors.New("name could not be empty")
 	}

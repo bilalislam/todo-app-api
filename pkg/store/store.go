@@ -1,37 +1,27 @@
 package store
 
-import "errors"
-
-type Task struct {
-	ID          int    `json:"id"`
-	Name        string `json:"name"`
-	IsComplete bool   `json:"isComplete"`
-}
+import (
+	"errors"
+	"github.com/bilalislam/todo-app-api/pkg/handler/requests"
+)
 
 type DataStore struct {
-	tasks  []Task
-	lastID int
+	tasks []requests.Task
 }
 
-func (ds *DataStore) GetTasks() ([]Task, error) {
+func (ds *DataStore) GetTasks() ([]requests.Task, error) {
 
 	return ds.tasks, nil
 }
 
 var NotFound = errors.New("Task was not found")
 
-func (ds *DataStore) AddTask(task Task) Task {
-	if task.ID == 0 {
-		ds.lastID++
-		task.ID = ds.lastID
-		ds.tasks = append(ds.tasks, task)
-		return task
-	}
-
+func (ds *DataStore) AddTask(task requests.Task) requests.Task {
+	ds.tasks = append(ds.tasks, task)
 	return task
 }
 
-func (ds *DataStore) UpdateTask(id int, task Task) error {
+func (ds *DataStore) UpdateTask(id int, task requests.Task) error {
 	for i, t := range ds.tasks {
 		if t.ID == id {
 			ds.tasks[i] = task
@@ -47,6 +37,7 @@ func (ds *DataStore) DeleteTask(id int) error {
 	for i, t := range ds.tasks {
 		if t.ID == id {
 			s[len(s)-1], s[i] = s[i], s[len(s)-1]
+			ds.tasks = s[:len(s)-1]
 			return nil
 		}
 	}
