@@ -1,14 +1,5 @@
 definitions:
-  store.Response:
-    properties:
-      message:
-        type: string
-      result:
-        type: object
-      success:
-        type: boolean
-    type: object
-  store.Task:
+  requests.Task:
     properties:
       id:
         type: integer
@@ -16,6 +7,15 @@ definitions:
         type: boolean
       name:
         type: string
+    type: object
+  responses.Response:
+    properties:
+      message:
+        type: string
+      result:
+        type: object
+      success:
+        type: boolean
     type: object
 info:
   contact:
@@ -30,6 +30,23 @@ info:
   version: "1.0"
 paths:
   /tasks:
+    delete:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.Response'
+      summary: Delete a Task
+      tags:
+      - tasks
     get:
       consumes:
       - application/json
@@ -39,7 +56,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/store.Response'
+            $ref: '#/definitions/responses.Response'
       summary: Get All Tasks
       tags:
       - tasks
@@ -52,7 +69,7 @@ paths:
         name: tasks
         required: true
         schema:
-          $ref: '#/definitions/store.Task'
+          $ref: '#/definitions/requests.Task'
           type: object
       produces:
       - application/json
@@ -60,8 +77,38 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/store.Response'
+            $ref: '#/definitions/responses.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.Response'
       summary: Add a Task
+      tags:
+      - tasks
+  /tasks/:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: task info
+        in: body
+        name: tasks
+        required: true
+        schema:
+          $ref: '#/definitions/requests.Task'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.Response'
+      summary: Update  a Task
       tags:
       - tasks
 swagger: "2.0"

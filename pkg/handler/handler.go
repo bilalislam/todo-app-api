@@ -32,7 +32,7 @@ func NewHandler(store *store.DataStore) Handler {
 // @Tags tasks
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} store.Response
+// @Success 200 {object} responses.Response
 // @Router /tasks [get]
 func (h Handler) GetTasks(c echo.Context) error {
 	tasks := h.store.GetTasks()
@@ -51,8 +51,9 @@ func (h Handler) GetTasks(c echo.Context) error {
 // @Tags tasks
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} store.Response
-// @Param tasks body store.Task true "task info"
+// @Success 200 {object} responses.Response
+// @Success 400 {object} responses.Response
+// @Param tasks body requests.Task true "task info"
 // @Router /tasks [post]
 func (h Handler) AddTask(c echo.Context) error {
 
@@ -82,6 +83,15 @@ func (h Handler) AddTask(c echo.Context) error {
 	})
 }
 
+// UpdateTask godoc
+// @Summary Update  a Task
+// @Tags tasks
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} responses.Response
+// @Success 400 {object} responses.Response
+// @Param tasks body requests.Task true "task info"
+// @Router /tasks/:id [put]
 func (h Handler) UpdateTask(c echo.Context) error {
 
 	task := new(requests.Task)
@@ -117,6 +127,15 @@ func (h Handler) UpdateTask(c echo.Context) error {
 	})
 }
 
+
+// DeleteTask godoc
+// @Summary Delete a Task
+// @Tags tasks
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} responses.Response
+// @Success 400 {object} responses.Response
+// @Router /tasks [delete]
 func (h Handler) DeleteTask(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 	err := h.store.DeleteTask(id)

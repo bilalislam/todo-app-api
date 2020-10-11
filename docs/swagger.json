@@ -31,7 +31,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/store.Response"
+                            "$ref": "#/definitions/responses.Response"
                         }
                     }
                 }
@@ -55,7 +55,7 @@
                         "required": true,
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/store.Task"
+                            "$ref": "#/definitions/requests.Task"
                         }
                     }
                 ],
@@ -63,7 +63,79 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/store.Response"
+                            "$ref": "#/definitions/responses.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tasks"
+                ],
+                "summary": "Delete a Task",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/tasks/": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tasks"
+                ],
+                "summary": "Update  a Task",
+                "parameters": [
+                    {
+                        "description": "task info",
+                        "name": "tasks",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/requests.Task"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Response"
                         }
                     }
                 }
@@ -71,21 +143,7 @@
         }
     },
     "definitions": {
-        "store.Response": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "result": {
-                    "type": "object"
-                },
-                "success": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "store.Task": {
+        "requests.Task": {
             "type": "object",
             "properties": {
                 "id": {
@@ -96,6 +154,20 @@
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "responses.Response": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "result": {
+                    "type": "object"
+                },
+                "success": {
+                    "type": "boolean"
                 }
             }
         }
