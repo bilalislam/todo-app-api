@@ -2,9 +2,6 @@
 
 [![Build Status](https://travis-ci.com/bilalislam/todo-app-api.svg?branch=master)](https://travis-ci.com/bilalislam/todo-app-api)
 
-![Random GIF](./images/swagger.png)
-
-
 Todo-api  is a backend project developed with golang and developed as the api of frontend.
 
 You can reach ui github repo [link.](https://github.com/bilalislam/todo-app-ui)
@@ -12,7 +9,7 @@ You can reach ui github repo [link.](https://github.com/bilalislam/todo-app-ui)
 
 # Demo-Preview
 
-swagger
+![Random GIF](./images/swagger.png)
 
 # Table of contents
 
