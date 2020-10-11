@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  web:
+    image: ninjafx/todo-app-ui:latest
+    ports:
+      - "5000:5000"
+    depends_on:
+      - api
+
+  api:
+    image: ninjafx/todo-app-api:latest
+    ports:
+      - "8080:8080"

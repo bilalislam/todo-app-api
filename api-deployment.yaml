@@ -24,7 +24,7 @@ spec:
         io.kompose.service: api
     spec:
       containers:
-      - image: ninjafx/todo-app-api:latest
+      - image: 410355896954.dkr.ecr.eu-west-1.amazonaws.com/todo-app-api
         imagePullPolicy: ""
         name: api
         ports:
